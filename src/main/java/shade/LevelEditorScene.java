@@ -32,6 +32,26 @@ public class LevelEditorScene extends Scene {
 
       private int vertexID, fragmentID, shaderProgram;
 
+      private float vertexArray[] = {
+            //position, color
+                   0.5f, -0.5f, 0.0f,      1.0f, 0.0f, 0.0f, 1.0f, //bottom right 0
+                  -0.5f,  0.5f, 0.0f,      0.0f, 1.0f, 0.0f, 1.0f, //top left     1
+                   0.5f,  0.5f, 0.0f,      0.0f, 0.0f, 1.0f, 1.0f, //top right    2
+                  -0.5f, -0.5f, 0.0f,      1.0f, 1.0f, 0.0f, 1.0f, //bottom left  3
+      };
+
+      //MUST BE IN counter-clockwise order
+      private int elementArray[] = {
+            /*
+            x           x
+
+
+            x           x
+             */
+                  2, 1, 0, //top right triangle
+                  0, 1, 3 // bottom left triangle
+      };
+
       public LevelEditorScene(){
 
       }
@@ -67,12 +87,26 @@ public class LevelEditorScene extends Scene {
             success = glGetShaderi(fragmentID, GL_COMPILE_STATUS);
             if(success == GL_FALSE){
                   int len = glGetShaderi(fragmentID, GL_INFO_LOG_LENGTH);
-                  System.out.println("Error: defaultShader.glsl\n\tVertex shader compilation failed");
+                  System.out.println("Error: defaultShader.glsl\n\tFragment shader compilation failed");
                   System.out.println(glGetShaderInfoLog(fragmentID, len));
                   assert false: "";
             }
 
             //link shaders and check for errors
+            shaderProgram = glCreateProgram();
+            glAttachShader(shaderProgram, vertexID);
+            glAttachShader(shaderProgram, fragmentID);
+            glLinkProgram(shaderProgram);
+
+            success = glGetProgrami(shaderProgram, GL_LINK_STATUS);
+            if(success == GL_FALSE){
+                  int len = glGetProgrami(shaderProgram, GL_INFO_LOG_LENGTH);
+                  System.out.println("Error: defaultShader.glsl\n\tLinking shader compilation failed");
+                  System.out.println(glGetProgramInfoLog(shaderProgram, len));
+                  assert false: "";
+            }
+
+            //generate VAO, VBO, EBO, and send to GPU
 
       }
 

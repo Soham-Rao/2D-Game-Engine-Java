@@ -1,5 +1,6 @@
 package shade;
 
+//imports
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
@@ -12,6 +13,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+//main window class
 public class Window {
       private int width, height;
       private String title;
@@ -33,16 +35,17 @@ public class Window {
             a = 1f;
       }
 
+      //changing screens on display
       public static void changeScene(int newScene){
             switch(newScene){
                   case 0:
                         currentScene = new LevelEditorScene();
-
+                        currentScene.init();
                         break;
 
                   case 1:
                         currentScene = new LevelScene();
-
+                        currentScene.init();
                         break;
 
                   default:
@@ -51,6 +54,7 @@ public class Window {
             }
       }
 
+      //return main window object
       public static Window get() {
             if (Window.window == null) {
                   Window.window = new Window();
@@ -59,6 +63,7 @@ public class Window {
             return Window.window;
       }
 
+      //call initialization and event loop
       public void run() {
             System.out.println("Hello from " + Version.getVersion() + "!");
 
@@ -75,6 +80,7 @@ public class Window {
 
       }
 
+      //initialization
       public void init() {
             //setup error callback
             GLFWErrorCallback.createPrint(System.err).set();
@@ -119,6 +125,7 @@ public class Window {
             Window.changeScene(0);
       }
 
+      //event loop
       public void loop() {
 
             float beginTime = Time.getTime();

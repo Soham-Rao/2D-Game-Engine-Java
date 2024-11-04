@@ -1,8 +1,10 @@
 package shade;
 
+//imports
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
+//mouse inputs
 public class MouseListener {
       private static MouseListener instance;
       private double scrollX, scrollY;
@@ -19,6 +21,7 @@ public class MouseListener {
             this.lastY = 0.0;
       }
 
+      //return mouseListener object
       public static MouseListener get() {
             if (MouseListener.instance == null) {
                   MouseListener.instance = new MouseListener();
@@ -27,6 +30,7 @@ public class MouseListener {
             return MouseListener.instance;
       }
 
+      //listen for the position
       public static void mousePosCallback(long window, double xpos, double ypos) {
             get().lastX = get().xPos;
             get().lastY = get().yPos;
@@ -35,6 +39,7 @@ public class MouseListener {
             get().isDragging = get().mouseButtonPressed[0] || get().mouseButtonPressed[1] || get().mouseButtonPressed[2];
       }
 
+      //listen for button press
       public static void mouseButtonCallback(long window, int button, int action, int mods) {
             if (action == GLFW_PRESS) {
                   if (button < get().mouseButtonPressed.length) {
@@ -48,11 +53,13 @@ public class MouseListener {
             }
       }
 
+      //listen for scroll wheel usage
       public static void mouseScrollCallback(long window, double xOffset, double yOffset) {
             get().scrollX = xOffset;
             get().scrollY = yOffset;
       }
 
+      //last frame
       public static void endFrame() {
             get().scrollX = 0;
             get().scrollY = 0;
@@ -60,6 +67,9 @@ public class MouseListener {
             get().lastY = get().yPos;
       }
 
+      /*getter methods
+      for x, y, dx, dy, scroll x, scroll y, drag, button pressed currently
+       */
       public static float getX() {
             return (float) get().xPos;
       }

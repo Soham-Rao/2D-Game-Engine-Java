@@ -8,6 +8,7 @@ import static org.lwjgl.opengl.GL30.*;
 import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import renderer.Shader;
+import renderer.Texture;
 import util.Time;
 
 import java.nio.*;
@@ -19,13 +20,14 @@ public class LevelEditorScene extends Scene {
       private int vaoID, vboID, eboID;
 
       private Shader defaultShader;
+      private Texture testTexture;
 
       private float vertexArray[] = {
                   //position, color
-                  100.0f, 0.0f,   0.0f,      1.0f, 1.0f, 0.0f, 1.0f,       1, 0, //bottom right 0
-                  0.0f,   100.0f, 0.0f,      0.0f, 1.0f, 1.0f, 1.0f,       0, 1, //top left     1
-                  100.0f, 100.0f, 0.0f,      1.0f, 0.0f, 1.0f, 1.0f,       1, 1, //top right    2
-                  0.0f,   0.0f,   0.0f,      1.0f, 1.0f, 1.0f, 1.0f,       0, 0  //bottom left  3
+                  100.0f, 0.0f,   0.0f,      1.0f, 1.0f, 0.0f, 1.0f,       1, 1, //bottom right 0
+                  0.0f,   100.0f, 0.0f,      0.0f, 1.0f, 1.0f, 1.0f,       0, 0, //top left     1
+                  100.0f, 100.0f, 0.0f,      1.0f, 0.0f, 1.0f, 1.0f,       1, 0, //top right    2
+                  0.0f,   0.0f,   0.0f,      1.0f, 1.0f, 1.0f, 1.0f,       0, 1  //bottom left  3
       };
 
       //MUST BE IN counter-clockwise order
@@ -50,6 +52,8 @@ public class LevelEditorScene extends Scene {
 
             defaultShader = new Shader("assets/shaders/default.glsl");
             defaultShader.compile();
+
+            this.testTexture = new Texture("assets/images/testImage.jpg");
 
             //generate VAO, VBO, EBO, and send to GPU
             vaoID = glGenVertexArrays();
@@ -96,6 +100,12 @@ public class LevelEditorScene extends Scene {
             camera.position.y -= dt * 20.0f;
 
             defaultShader.use();
+
+            //upload texture to shader
+            defaultShader.uploadTexture("TEX_SAMPLER", 0);
+            glActiveTexture(GL_TEXTURE0);
+            testTexture.bind();
+
             defaultShader.uploadMat4f("uProjection", camera.getProjectionMatrix());
             defaultShader.uploadMat4f("uView", camera.getViewMatrix());
             defaultShader.uploadFloat("uTime", Time.getTime());

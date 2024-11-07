@@ -19,16 +19,17 @@ prefix f = pass to fragment shader
 */
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec4 aColor;
-//layout (location = 2) in vec2 aTextCoords;
+layout (location = 2) in vec2 aTextCoords;
 
 uniform mat4 uProjection;
 uniform mat4 uView;
 
 out vec4 fColor;
-//out vec2 fUV;
+out vec2 fTextCoords;
 
 void main(){
     fColor = aColor;
+    fTextCoords = aTextCoords;
     //needed, apos = 1st 3, 4th = 1
     gl_Position = uProjection * uView * vec4(aPos, 1.0);
 }
@@ -38,13 +39,15 @@ void main(){
 #version 460 core
 
 uniform float uTime;
+uniform sampler2D TEX_SAMPLER;
 
 in vec4 fColor;
+in vec2 fTextCoords;
 
 out vec4 color;
 
 void main(){
-    color = fColor;
+    color = texture(TEX_SAMPLER, fTextCoords);
 }
 
 

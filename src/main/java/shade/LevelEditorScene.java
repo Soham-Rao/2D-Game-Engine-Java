@@ -5,12 +5,16 @@ package shade;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
+import components.FontRenderer;
+import components.SpriteRenderer;
 import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.GLFWGammaRamp;
 import renderer.Shader;
 import renderer.Texture;
 import util.Time;
 
+import java.awt.*;
 import java.nio.*;
 
 //level editor class
@@ -21,6 +25,9 @@ public class LevelEditorScene extends Scene {
 
       private Shader defaultShader;
       private Texture testTexture;
+
+      private GameObject testObject;
+      private boolean firstTime = false;
 
       private float vertexArray[] = {
                   //position, color
@@ -48,12 +55,19 @@ public class LevelEditorScene extends Scene {
 
       @Override
       public void init(){
-            this.camera = new Camera(new Vector2f());
+
+            System.out.println("Creating test Object");
+            this.testObject = new GameObject("Test Object");
+            this.testObject.addComponent(new SpriteRenderer());
+            this.testObject.addComponent(new FontRenderer());
+            this.addGameObjectToScene(this.testObject);
+
+            this.camera = new Camera(new Vector2f(-200, -300));
 
             defaultShader = new Shader("assets/shaders/default.glsl");
             defaultShader.compile();
 
-            this.testTexture = new Texture("assets/images/testImage.jpg");
+            this.testTexture = new Texture("assets/images/testImage.png");
 
             //generate VAO, VBO, EBO, and send to GPU
             vaoID = glGenVertexArrays();
@@ -127,6 +141,18 @@ public class LevelEditorScene extends Scene {
             glBindVertexArray(0);
 
             defaultShader.detach();
+
+            if(!firstTime) {
+                  System.out.println("Creating GameObject!");
+                  GameObject go = new GameObject("Game Test 2");
+                  go.addComponent(new SpriteRenderer());
+                  this.addGameObjectToScene(go);
+                  firstTime = true;
+            }
+
+            for(GameObject go: this.gameObjects){
+                  go.update(dt);
+            }
 
       }
 }

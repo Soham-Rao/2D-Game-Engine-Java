@@ -1,62 +1,55 @@
 package shade;
 
-//imports
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import util.Time;
-
-import java.util.Objects;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-//main window class
 public class Window {
       private int width, height;
       private String title;
       private long glfwWindow;
 
       public float r, g, b, a;
+      private boolean fadeToBlack = false;
 
       private static Window window = null;
 
-      private static Scene currentScene = null;
+      private static Scene currentScene;
 
       private Window() {
             this.width = 1920;
             this.height = 1080;
             this.title = "Mario";
-            r = 1f;
-            g = 1f;
-            b = 1f;
-            a = 1f;
+            r = 0;
+            b = 0;
+            g = 0;
+            a = 1;
       }
 
-      //changing screens on display
-      public static void changeScene(int newScene){
-            switch(newScene){
+      public static void changeScene(int newScene) {
+            switch (newScene) {
                   case 0:
                         currentScene = new LevelEditorScene();
                         currentScene.init();
                         currentScene.start();
                         break;
-
                   case 1:
                         currentScene = new LevelScene();
                         currentScene.init();
                         currentScene.start();
                         break;
-
                   default:
-                        assert false: "Unknown Scene ' " + newScene + " '";
+                        assert false : "Unknown scene '" + newScene + "'";
                         break;
             }
       }
 
-      //return main window object
       public static Window get() {
             if (Window.window == null) {
                   Window.window = new Window();
@@ -65,83 +58,82 @@ public class Window {
             return Window.window;
       }
 
-      //call initialization and event loop
+      public static Scene getScene() {
+            return get().currentScene;
+      }
+
       public void run() {
-            System.out.println("Hello from " + Version.getVersion() + "!");
+            System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
             init();
             loop();
 
-            //Free memory after execution
+            // Free the memory
             glfwFreeCallbacks(glfwWindow);
             glfwDestroyWindow(glfwWindow);
 
+            // Terminate GLFW and the free the error callback
             glfwTerminate();
-            Objects.requireNonNull(glfwSetErrorCallback(null)).free();
-
-
+            glfwSetErrorCallback(null).free();
       }
 
-      //initialization
       public void init() {
-            //setup error callback
+            // Setup an error callback
             GLFWErrorCallback.createPrint(System.err).set();
 
-            //initialize GLFW
+            // Initialize GLFW
             if (!glfwInit()) {
-                  throw new IllegalStateException("Unable to initialize GLFW!");
+                  throw new IllegalStateException("Unable to initialize GLFW.");
             }
 
-            //Configure GLFW
+            // Configure GLFW
             glfwDefaultWindowHints();
             glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
             glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
             glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
-            //Creating Window
-            glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL); //mem adddr
+            // Create the window
+            glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
             if (glfwWindow == NULL) {
-                  throw new IllegalStateException("Unable to create Window!");
+                  throw new IllegalStateException("Failed to create the GLFW window.");
             }
 
-            //forwarding gl callbacks of mouse to our functions
             glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);
             glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
             glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
             glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
 
-            //Making the OpenGL Context Current
+            // Make the OpenGL context current
             glfwMakeContextCurrent(glfwWindow);
-            //Enabling Vsync
+            // Enable v-sync
             glfwSwapInterval(1);
 
-            //Show the window
+            // Make the window visible
             glfwShowWindow(glfwWindow);
 
-            /*LWJGL and OpenGL Integration
-              Integrates with External Contexts
-              LWJGL detects current context in current thread only
-             */
+            // This line is critical for LWJGL's interoperation with GLFW's
+            // OpenGL context, or any context that is managed externally.
+            // LWJGL detects the context that is current in the current thread,
+            // creates the GLCapabilities instance and makes the OpenGL
+            // bindings available for use.
             GL.createCapabilities();
 
             Window.changeScene(0);
       }
 
-      //event loop
       public void loop() {
-
             float beginTime = Time.getTime();
-            float endTime = Time.getTime();
+            float endTime;
             float dt = -1.0f;
 
             while (!glfwWindowShouldClose(glfwWindow)) {
-                  //I/O Events
+                  // Poll events
                   glfwPollEvents();
 
                   glClearColor(r, g, b, a);
                   glClear(GL_COLOR_BUFFER_BIT);
 
-                  if(dt >= 0) {
+                  if (dt >= 0) {
                         currentScene.update(dt);
                   }
 
